@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { Document, Schema, model } from "mongoose";
+import { minLength } from "zod";
 
-interface IUser {
+interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
@@ -24,6 +25,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
     select: false,
+    minLength: 8,
   },
   role: {
     type: String,
