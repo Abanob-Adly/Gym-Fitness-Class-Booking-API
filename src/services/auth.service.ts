@@ -44,11 +44,11 @@ const registerUser = async (userData: IUser) => {
 const loginUser = async (loginData: { email: string; password: string }) => {
   const { email, password } = loginData;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
 
   const DUMMY_HASH =
     "$2a$10$abcdefghijklmnopqrstuvwxyz12345678901234567890123456";
-  const hashToCompare = user ? user.password : DUMMY_HASH;
+  const hashToCompare = user?.password || DUMMY_HASH;
 
   const isMatch = await bcrypt.compare(password, hashToCompare);
 

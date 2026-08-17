@@ -2,7 +2,7 @@ import express, { Application, Response } from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db";
 import { errorHandler } from "./middlewares/errorHandler";
-
+import authRouter from "./routes/auth.routes";
 dotenv.config();
 
 const app: Application = express();
@@ -10,6 +10,7 @@ const PORT: number = Number(process.env.PORT);
 
 app.use(express.json());
 app.use(errorHandler);
+app.use("/api/auth", authRouter);
 
 const startServer = async () => {
   try {
