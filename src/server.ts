@@ -9,8 +9,8 @@ const app: Application = express();
 const PORT: number = Number(process.env.PORT);
 
 app.use(express.json());
-app.use(errorHandler);
 app.use("/api/auth", authRouter);
+app.use(errorHandler);
 
 const startServer = async () => {
   try {
