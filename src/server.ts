@@ -1,4 +1,5 @@
 import express, { Application, Response } from "express";
+import morgan from "morgan";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -7,7 +8,9 @@ dotenv.config();
 
 const app: Application = express();
 const PORT: number = Number(process.env.PORT);
+const morganFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
 
+app.use(morgan(morganFormat));
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use(errorHandler);
