@@ -5,6 +5,7 @@ interface IClassSession {
   trainer: Types.ObjectId;
   timeSlot: Date;
   capacity: number;
+  bookedSlots:number;
 }
 
 const classSessionSchema = new Schema<IClassSession>({
@@ -12,6 +13,7 @@ const classSessionSchema = new Schema<IClassSession>({
   trainer: { type: Schema.Types.ObjectId, ref: "User", required: true },
   timeSlot: { type: Date, required: true },
   capacity: { type: Number, required: true, min: 1 },
+  bookedSlots: { type: Number, required: true, default: 0, min: 0 },
 });
 
 const ClassSession = model<IClassSession>("ClassSession", classSessionSchema);

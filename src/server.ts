@@ -2,6 +2,7 @@ import express, { Application, Response } from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db";
 import { errorHandler } from "./middlewares/errorHandler";
+import bookingRoutes from "./routes/booking.route";
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const app: Application = express();
 const PORT: number = Number(process.env.PORT);
 
 app.use(express.json());
+app.use("/api/bookings", bookingRoutes);
 app.use(errorHandler);
 
 const startServer = async () => {
@@ -25,5 +27,7 @@ const startServer = async () => {
 app.get("/", (_, res: Response): void => {
   res.send("Welcome in GYM Booking API");
 });
+
+
 
 startServer();
