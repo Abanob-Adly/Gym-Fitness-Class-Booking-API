@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError";
 import { catchAsync } from "../utils/catchAsync";
 
 const protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, _res: Response, next: NextFunction) => {
     let token: string | undefined;
 
     if (
@@ -39,11 +39,10 @@ const protect = catchAsync(
 );
 
 const restrictTo = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      throw new ApiError(
-        403,
-        "You don't have permission to perform this action",
+      return next(
+        new ApiError(403, "You don't have permission to perform this action"),
       );
     }
     next();
