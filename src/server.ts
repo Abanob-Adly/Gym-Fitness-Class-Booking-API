@@ -6,6 +6,7 @@ import { setupSwagger } from "./config/swagger";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRouter from "./routes/auth.routes";
 import dashboardRouter from "./routes/dashboard.routes";
+import sessionRouter from "./routes/session.routes";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ setupSwagger(app);
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/sessions", sessionRouter);
 app.use(errorHandler);
 
 const startServer = async () => {
@@ -31,7 +33,7 @@ const startServer = async () => {
   }
 };
 
-app.get("/", (_, res: Response): void => {
+app.get("/", (_req, res: Response): void => {
   res.send("Welcome in GYM Booking API");
 });
 
