@@ -5,6 +5,8 @@ import { connectDB } from "./config/db";
 import { setupSwagger } from "./config/swagger";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRouter from "./routes/auth.routes";
+import dashboardRouter from "./routes/dashboard.routes";
+
 dotenv.config();
 
 const app: Application = express();
@@ -15,6 +17,7 @@ app.use(morgan(morganFormat));
 setupSwagger(app);
 app.use(express.json());
 app.use("/api/auth", authRouter);
+app.use("/api/dashboard", dashboardRouter);
 app.use(errorHandler);
 
 const startServer = async () => {
