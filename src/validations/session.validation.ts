@@ -18,6 +18,10 @@ const sessionSchema = z.object({
         .int({ message: "Capacity must be an integer" })
         .positive({ message: "Capacity must be a positive number" }),
     })
+    .refine((data) => data.startTime > new Date(), {
+      message: "Sessions can only be created for future time slots",
+      path: ["startTime"],
+    })
     .refine((data) => data.endTime > data.startTime, {
       message: "End time must be strictly after start time",
       path: ["endTime"],
