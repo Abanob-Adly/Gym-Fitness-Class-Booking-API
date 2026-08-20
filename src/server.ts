@@ -5,8 +5,8 @@ import { connectDB } from "./config/db";
 import { setupSwagger } from "./config/swagger";
 import { errorHandler } from "./middlewares/errorHandler";
 import bookingRouter from "./routes/booking.routes";
-
 import authRouter from "./routes/auth.routes";
+
 dotenv.config();
 
 const app: Application = express();
