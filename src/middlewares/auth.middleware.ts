@@ -26,7 +26,7 @@ const protect = catchAsync(
       token,
       process.env.JWT_SECRET as string,
     ) as JwtPayload;
-    const currentUser = await User.findById(decoded._id);
+    const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
       throw new ApiError(
         401,

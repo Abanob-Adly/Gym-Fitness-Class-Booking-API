@@ -4,12 +4,9 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db";
 import { setupSwagger } from "./config/swagger";
 import { errorHandler } from "./middlewares/errorHandler";
-<<<<<<< HEAD
-import bookingRoutes from "./routes/booking.route";
-
-=======
 import authRouter from "./routes/auth.routes";
->>>>>>> origin/feat/auth-core
+import sessionRoutes from "./routes/session.routes";
+
 dotenv.config();
 
 const app: Application = express();
@@ -19,11 +16,8 @@ const morganFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
 app.use(morgan(morganFormat));
 setupSwagger(app);
 app.use(express.json());
-<<<<<<< HEAD
-app.use("/api/bookings", bookingRoutes);
-=======
 app.use("/api/auth", authRouter);
->>>>>>> origin/feat/auth-core
+app.use("/api/sessions", sessionRoutes);
 app.use(errorHandler);
 
 const startServer = async () => {
@@ -40,7 +34,5 @@ const startServer = async () => {
 app.get("/", (_, res: Response): void => {
   res.send("Welcome in GYM Booking API");
 });
-
-
 
 startServer();
