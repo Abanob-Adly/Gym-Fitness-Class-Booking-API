@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import { catchAsync } from "../utils/catchAsync";
+import { token } from "morgan";
 
 const protect = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
@@ -26,7 +27,7 @@ const protect = catchAsync(
       token,
       process.env.JWT_SECRET as string,
     ) as JwtPayload;
-    const currentUser = await User.findById(decoded._id);
+    const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
       throw new ApiError(
         401,
