@@ -1,18 +1,25 @@
-import {Router} from "express";
-import {createBooking, cancelBooking, getMemberBookings, getSessionRoster}from "../controllers/booking.controller";
-import { protect, restrictTo } from "../middlewares/auth.middleware" ;
-const bookingRouter = Router();
+import { Router } from "express";
+import {
+  createBooking,
+  cancelBooking,
+  getMemberBookings,
+  getSessionRoster,
+} from "../controllers/booking.controller";
+import { protect, restrictTo } from "../middlewares/auth.middleware";
 
+const router = Router();
+
+router.use(protect, restrictTo("member"));
 // member can book a spot in a session
-bookingRouter.post("/",protect,restrictTo("member"),createBooking);
+router.post("/", createBooking);
 
 // member can cancel a booked session
-bookingRouter.patch("/:bookingId/cancel",protect,restrictTo("member"),cancelBooking);
+router.patch("/:bookingId/cancel", cancelBooking);
 
-// member can view his bookings 
-bookingRouter.get("/my-bookings",protect,restrictTo("member"),getMemberBookings)
+// member can view his bookings
+router.get("/my-bookings", getMemberBookings);
 
 // trainer can view bookings for his session
-bookingRouter.get("/:sessionId/roster",protect,restrictTo("trainer"),getSessionRoster)
+router.get("/:sessionId/roster", getSessionRoster);
 
-export default bookingRouter;
+export default router;
