@@ -1,19 +1,22 @@
 import { Application } from "express";
 import swaggerUi from "swagger-ui-express";
+import swaggerJSDoc from "swagger-jsdoc";
 
-const swaggerDocument = {
+const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Gym Booking API",
+      title: "Gym & Fitness Class Booking API",
       version: "1.0.0",
-      description: "API Documentation for Gym Management System",
+      description: "RESTful API documentation for Gym Fitness Class Booking system",
     },
-    servers: [{ url: "http://localhost:3000/api" }],
+    servers: [{ url: "http://localhost:3000" }],
   },
-  paths: {},
+  apis: ["./src/routes/*.ts", "./src/models/*.ts"],
 };
 
+const swaggerSpec = swaggerJSDoc(options);
+
 export const setupSwagger = (app: Application) => {
-  app.use("api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
