@@ -56,10 +56,10 @@ const deleteSessionService = async (id: string, trainerId: Types.ObjectId) => {
     throw new ApiError(403, "You are not authorized to delete this session");
   }
 
-  const activeBookings = await Booking.countDocuments({
-    sessionId: id,
-    status: "booked",
-  });
+const activeBookings = await Booking.countDocuments({
+  session: id,
+  status: "booked",
+});
 
   if (activeBookings > 0) {
     throw new ApiError(400, "Cannot delete session with active bookings");
