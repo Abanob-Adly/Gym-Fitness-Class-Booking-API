@@ -2,6 +2,11 @@
 
 A RESTful API for managing gym fitness classes, bookings, and trainer dashboards. Built with Node.js, Express, TypeScript, and MongoDB.
 
+## 🚀 Live Deployment & API Documentation
+
+- **Live Base URL:** `https://gym-fitness-class-booking-api-production-b523.up.railway.app`
+- **Interactive Swagger Docs:** [Swagger UI Documentation](https://gym-fitness-class-booking-api-production-b523.up.railway.app/api-docs)
+
 ## Features
 
 - **Authentication** — user registration and login with JWT, role-based access (`member` / `trainer`)
