@@ -20,7 +20,7 @@ const createBookingService = async (
   const session = await ClassSession.findOneAndUpdate(
     {
       _id: sessionId,
-      timeSlot: { $gt: new Date() },
+      startTime: { $gt: new Date() },
       $expr: {
         $lt: ["$bookedSlots", "$capacity"],
       },
@@ -98,7 +98,7 @@ const getSessionRosterService = async (
     throw new ApiError(404, "Class session not found");
   }
 
-  if (session.trainer.toString() !== trainerId.toString()) {
+  if (session.trainerId.toString() !== trainerId.toString()) { 
     throw new ApiError(
       403,
       "You can only view bookings for your own sessions"
