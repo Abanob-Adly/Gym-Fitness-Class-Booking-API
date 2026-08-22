@@ -1,4 +1,5 @@
 import { ClassSession } from "../models/classSession.model";
+import { User } from "../models/user.model";
 import { Booking } from "../models/booking.model";
 import { ApiError } from "../utils/ApiError";
 import { QueryFilter, Types } from "mongoose";
@@ -13,6 +14,7 @@ interface CreateSessionInput {
 interface SessionQuery {
   search?: string;
   trainerId?: string;
+  trainerName?: string;
   date?: string;
   availableOnly?: string;
   page?: string;
@@ -56,10 +58,10 @@ const deleteSessionService = async (id: string, trainerId: Types.ObjectId) => {
     throw new ApiError(403, "You are not authorized to delete this session");
   }
 
-const activeBookings = await Booking.countDocuments({
-  session: id,
-  status: "booked",
-});
+  const activeBookings = await Booking.countDocuments({
+    session: id,
+    status: "booked",
+  });
 
   if (activeBookings > 0) {
     throw new ApiError(400, "Cannot delete session with active bookings");
@@ -82,6 +84,7 @@ const getAllSessionsService = async (queryData: SessionQuery) => {
   const {
     search,
     trainerId,
+    trainerName,
     date,
     availableOnly,
     page = "1",
@@ -96,6 +99,14 @@ const getAllSessionsService = async (queryData: SessionQuery) => {
 
   if (trainerId) {
     query.trainerId = trainerId;
+  } else if (trainerName) {
+    const matchingTrainers = await User.find({
+      name: { $regex: trainerName, $options: "i" },
+      role: "trainer",
+    }).select("_id");
+
+    const trainerIds = matchingTrainers.map((trainer) => trainer._id);
+    query.trainerId = { $in: trainerIds };
   }
 
   if (date) {
