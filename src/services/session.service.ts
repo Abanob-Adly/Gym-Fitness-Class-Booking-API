@@ -1,53 +1,142 @@
-import { ClassSession } from '../models/classSession.model';
-import { Booking } from '../models/booking.model';
-import { ApiError } from '../utils/ApiError';
+import { ClassSession } from "../models/classSession.model";
+import { Booking } from "../models/booking.model";
+import { ApiError } from "../utils/ApiError";
+import { QueryFilter, Types } from "mongoose";
 
-export const createSessionService = async (sessionData: any) => {
-  return await ClassSession.create(sessionData);
+interface CreateSessionInput {
+  title: string;
+  description?: string;
+  startTime: Date;
+  endTime: Date;
+  capacity: number;
+}
+interface SessionQuery {
+  search?: string;
+  trainerId?: string;
+  date?: string;
+  availableOnly?: string;
+  page?: string;
+  limit?: string;
+}
+type UpdateSessionInput = Partial<CreateSessionInput>;
+
+const createSessionService = async (
+  sessionData: CreateSessionInput,
+  trainerId: Types.ObjectId,
+) => {
+  return await ClassSession.create({
+    ...sessionData,
+    trainerId: trainerId,
+  });
 };
 
-export const updateSessionService = async (id: string, updateData: any, trainerId: string) => {
+const updateSessionService = async (
+  id: string,
+  updateData: UpdateSessionInput,
+  trainerId: Types.ObjectId,
+) => {
   const session = await ClassSession.findById(id);
 
   if (!session) throw new ApiError(404, "Session not found");
-  if (session.trainerId.toString() !== trainerId.toString()) throw new ApiError(403, "You are not authorized to update this session");
+  if (session.trainerId.toString() !== trainerId.toString()) {
+    throw new ApiError(403, "You are not authorized to update this session");
+  }
 
-  return await ClassSession.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+  return await ClassSession.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  });
 };
 
-export const deleteSessionService = async (id: string, trainerId: string) => {
+const deleteSessionService = async (id: string, trainerId: Types.ObjectId) => {
   const session = await ClassSession.findById(id);
-  const activeBookings = await Booking.countDocuments({ session: id, status: 'booked' });
-
   if (!session) throw new ApiError(404, "Session not found");
-  if (session.trainerId.toString() !== trainerId.toString()) throw new ApiError(403, "You are not authorized to delete this session");
-  if (activeBookings > 0) throw new ApiError(400, "Cannot delete session with active confirmed bookings");
+
+  if (session.trainerId.toString() !== trainerId.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this session");
+  }
+
+  const activeBookings = await Booking.countDocuments({
+    sessionId: id,
+    status: "booked",
+  });
+
+  if (activeBookings > 0) {
+    throw new ApiError(400, "Cannot delete session with active bookings");
+  }
 
   session.isDeleted = true;
   await session.save();
 };
-export const getSessionByIdService = async (sessionId: string) => {
-  const session = await ClassSession.findById(sessionId);
+
+const getSessionByIdService = async (sessionId: string) => {
+  const session = await ClassSession.findOne({
+    _id: sessionId,
+    isDeleted: false,
+  });
+  if (!session) throw new ApiError(404, "Session not found");
   return session;
 };
-export const getAllSessionsService = async (queryData: any) => {
-  const { page = '1', limit = '10' } = queryData;
-  const skip = (Number(page) - 1) * Number(limit);
 
-  const sessions = await ClassSession.find({ isDeleted: false })
+const getAllSessionsService = async (queryData: SessionQuery) => {
+  const {
+    search,
+    trainerId,
+    date,
+    availableOnly,
+    page = "1",
+    limit = "10",
+  } = queryData;
+
+  const query: QueryFilter<typeof ClassSession> = { isDeleted: false };
+
+  if (search) {
+    query.title = { $regex: search, $options: "i" };
+  }
+
+  if (trainerId) {
+    query.trainerId = trainerId;
+  }
+
+  if (date) {
+    const searchDate = new Date(date);
+    const nextDay = new Date(searchDate);
+    nextDay.setDate(searchDate.getDate() + 1);
+
+    query.startTime = { $gte: searchDate, $lt: nextDay };
+  }
+
+  if (availableOnly === "true") {
+    query.$expr = { $lt: ["$bookedSlots", "$capacity"] };
+  }
+
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const skip = (pageNumber - 1) * limitNumber;
+
+  const sessions = await ClassSession.find(query)
     .skip(skip)
-    .limit(Number(limit))
+    .limit(limitNumber)
     .sort({ startTime: 1 });
 
-  const totalItems = await ClassSession.countDocuments({ isDeleted: false });
+  const totalItems = await ClassSession.countDocuments(query);
+  const totalPages = Math.ceil(totalItems / limitNumber);
 
   return {
     sessions,
-    pagination: { 
-      page: Number(page), 
-      limit: Number(limit), 
-      totalPages: Math.ceil(totalItems / Number(limit)), 
-      totalItems 
-    }
+    pagination: {
+      page: pageNumber,
+      limit: limitNumber,
+      totalPages,
+      totalItems,
+    },
   };
+};
+
+export {
+  createSessionService,
+  updateSessionService,
+  deleteSessionService,
+  getSessionByIdService,
+  getAllSessionsService,
 };

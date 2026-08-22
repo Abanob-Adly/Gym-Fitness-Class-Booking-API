@@ -1,56 +1,66 @@
-import { Request, Response } from 'express';
-import { catchAsync } from '../utils/catchAsync';
-import { ApiResponse } from '../utils/ApiResponse';
-import * as sessionService from '../services/session.service';
-import { ApiError } from '../utils/ApiError';
+import { Request, Response } from "express";
+import { catchAsync } from "../utils/catchAsync";
+import { ApiResponse } from "../utils/ApiResponse";
+import * as sessionService from "../services/session.service";
 
-export const createSession = catchAsync(async (req: Request, res: Response) => {
-  const sessionData = {
-    ...req.body,
-    trainerId: (req as any).user._id
-  };
+const createSession = catchAsync(async (req: Request, res: Response) => {
+  const trainerId = req.user!._id;
+  const newSession = await sessionService.createSessionService(
+    req.body,
+    trainerId,
+  );
 
-  const newSession = await sessionService.createSessionService(sessionData);
-
-  res.status(201).json(new ApiResponse(201, newSession, "Session created successfully"));
+  res
+    .status(201)
+    .json(new ApiResponse(201, newSession, "Session created successfully"));
 });
 
-export const updateSession = catchAsync(async (req: Request, res: Response) => {
-  const id  = req.params.id as string;
-  const trainerId = (req as any).user._id;
-  
-  const updatedSession = await sessionService.updateSessionService(id, req.body, trainerId);
+const updateSession = catchAsync(async (req: Request, res: Response) => {
+  const  {id}  = req.params;
+  const trainerId = req.user!._id;
 
-  res.status(200).json(new ApiResponse(200, updatedSession, "Session updated successfully"));
+  const updatedSession = await sessionService.updateSessionService(
+    id as string ,
+    req.body,
+    trainerId,
+  );
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, updatedSession, "Session updated successfully"));
 });
 
-export const deleteSession = catchAsync(async (req: Request, res: Response) => {
-  const    id  = req.params.id as string;
-  const trainerId = (req as any).user._id;
+const deleteSession = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const trainerId = req.user!._id;
 
-  await sessionService.deleteSessionService(id, trainerId);
+  await sessionService.deleteSessionService(id as string, trainerId);
 
-  res.status(200).json(new ApiResponse(200, null, "Session deleted successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Session deleted successfully"));
 });
 
-export const getAllSessions = catchAsync(async (req: Request, res: Response) => {
+const getAllSessions = catchAsync(async (req: Request, res: Response) => {
   const result = await sessionService.getAllSessionsService(req.query);
 
-  res.status(200).json(new ApiResponse(200, result, "Sessions fetched successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "Sessions fetched successfully"));
 });
-export const getSessionById = catchAsync(
-  async (req: Request, res: Response) => {
-    const  id = req.params.id as string;
-    const session = await sessionService.getSessionByIdService(id);
 
-    
-    if (!session) {
-      throw new ApiError(404, "Session not found");
-    }
+const getSessionById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const session = await sessionService.getSessionByIdService(id as string);
 
-    res.status(200).json({
-      success: true,
-      data: session,
-    });
-  }
-);
+  res
+    .status(200)
+    .json(new ApiResponse(200, session, "Session fetched successfully"));
+});
+export {
+  createSession,
+  updateSession,
+  deleteSession,
+  getSessionById,
+  getAllSessions,
+};
