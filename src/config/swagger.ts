@@ -10,7 +10,7 @@ const options = {
       version: "1.0.0",
       description: "RESTful API documentation for Gym Fitness Class Booking system",
     },
-    servers: [{ url: "http://localhost:3000" }],
+    servers: [{ url: "https://gym-fitness-class-booking-api-production-b523.up.railway.app/" }],
     components: {
       securitySchemes: {
         bearerAuth: {

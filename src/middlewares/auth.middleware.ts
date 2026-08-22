@@ -3,7 +3,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import { catchAsync } from "../utils/catchAsync";
-import { token } from "morgan";
 
 const protect = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
